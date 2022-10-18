@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { poweredBy } from "hono/powered-by";
 import { qiita } from "libs/apiClient";
+import { convert } from "html-to-text";
+import xmlescape from 'xml-escape';
 
 export const app = new Hono();
 
@@ -33,11 +35,8 @@ app.get("/:id", async (c) => {
         `    <updated>${item.updated_at}</updated>`,
         `    <link rel="alternate" type="text/html" href="${item.url}" />`,
         `    <url>${item.url}</url>`,
-        `    <title>${item.title.replace(/&/g, "&amp;")}</title>`,
-        `    <content type="html">${item.rendered_body
-          .replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, "")
-          .replace(/&/g, "&amp;")
-          .substring(0, 100)}…</content>`,
+        `    <title>${xmlescape(item.title)}</title>`,
+        `    <content type="html">${xmlescape(convert(item.rendered_body).substring(0, 200))}</content>`,
         `    <author>`,
         `      <name>${id}</name>`,
         `    </author>`,
